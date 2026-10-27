@@ -2,7 +2,7 @@
 
 Cổng thông tin Web Portal quản trị nhân sự, vận hành ca kíp, phê duyệt đơn từ, tính lương và tích hợp chi lương ngân hàng cho chuỗi doanh nghiệp bán lẻ / F&B / dịch vụ.
 
-Thuộc hệ sinh thái **HRM Enterprise** kết nối trực tiếp với Core Server (Express Microservices SOA) qua API Gateway.
+Thuộc hệ sinh thái **HRM Enterprise**, kết nối trực tiếp với Core Server (Express Microservices SOA) qua API Gateway.
 
 ---
 
@@ -20,7 +20,7 @@ Thuộc hệ sinh thái **HRM Enterprise** kết nối trực tiếp với Core 
 
 1. **📊 Dashboard Tổng quan:**
    - Thống kê thời gian thực: Tổng nhân viên, phòng ban, ca trực hôm nay, đơn từ đang chờ duyệt, quỹ lương tháng.
-   - Biểu đồ và thông báo quan trọng trong ngày.
+   - Biểu đồ biến động nhân sự và các thông báo quan trọng trong ngày.
 
 2. **🏢 Cơ cấu Tổ chức:**
    - Quản lý Chi nhánh: Thêm, sửa, xem thông tin chi nhánh (HN-1, HN-2, DN-1...), địa chỉ, số điện thoại liên hệ.
@@ -38,7 +38,7 @@ Thuộc hệ sinh thái **HRM Enterprise** kết nối trực tiếp với Core 
    - Theo dõi dữ liệu chấm công Wi-Fi thực tế và xuất lịch phân ca (PDF/Excel).
 
 5. **📝 Phê duyệt Đơn từ:**
-   - Tiếp nhận và xử lý đơn xin nghỉ phép, làm thêm giờ (OT), tạm ứng lương, giải trình vi phạm chấm công.
+   - Tiếp nhận và xử lý đơn xin nghỉ phép, làm thêm giờ (OT), tạm ứng lương, giải trình vi phạm chấm công kèm ảnh chứng thực.
    - Quy trình duyệt nhiều cấp (Quản lý chi nhánh -> Giám đốc).
 
 6. **💰 Bảng lương & Lệnh chi Ngân hàng:**
@@ -55,35 +55,72 @@ Thuộc hệ sinh thái **HRM Enterprise** kết nối trực tiếp với Core 
 
 ---
 
+## 🌳 Cấu trúc Thư mục Repository
+
+```text
+frontend/
+├── docs/                       # Tài liệu thiết kế hệ thống
+└── frontend/                   # Mã nguồn ứng dụng Next.js
+    ├── public/                 # Static assets, logos, favicon
+    ├── src/
+    │   ├── app/                # Next.js App Router (auth, dashboard: branches, shifts, payslips...)
+    │   ├── components/         # UI Components dùng chung (Sidebar, Topbar, Modal, Form, Table...)
+    │   ├── context/            # React Context (AuthContext, TopbarContext)
+    │   ├── features/           # Module nghiệp vụ chuyên biệt:
+    │   │   ├── bank/           # Lệnh chi SOAP ngân hàng & thống kê chi trả
+    │   │   ├── branches/       # CRUD danh sách chi nhánh
+    │   │   ├── departments/    # CRUD phòng ban
+    │   │   ├── employees/      # Quản lý nhân viên, hồ sơ, cấp lại mật khẩu
+    │   │   ├── news/           # Đăng bảng tin & thông báo
+    │   │   ├── payslips/       # Quản lý bảng lương & chốt lương
+    │   │   ├── regulations/    # Sổ tay quy chế công ty
+    │   │   ├── requests/       # Duyệt đơn từ nghỉ phép, OT, tạm ứng
+    │   │   ├── shifts/         # Phân ca, ca mẫu, nguyện vọng tuần
+    │   │   ├── tasks/          # Quản lý tác vụ vận hành
+    │   │   └── wifi/           # Cấu hình BSSID / IP Wi-Fi chi nhánh
+    │   ├── hooks/              # Custom React Hooks (useCurrentUser)
+    │   ├── lib/                # API Client, utils, phân quyền
+    │   └── types/              # TypeScript Type & Interface toàn hệ thống
+    ├── .env.example            # Khai báo biến môi trường mẫu
+    ├── next.config.ts          # Cấu hình Next.js
+    ├── package.json            # Dependencies
+    ├── tsconfig.json           # Cấu hình TypeScript
+    └── postcss.config.mjs      # Cấu hình Tailwind CSS
+```
+
+---
+
 ## 🚀 Cài đặt & Khởi chạy
 
 ### Yêu cầu hệ thống
-- Node.js >= 18.x
-- npm >= 9.x
-- API Gateway backend đang chạy tại port 4000
+- **Node.js** >= 18.x
+- **npm** >= 9.x
+- **API Gateway backend** đang chạy tại port `4000`
 
 ### Các bước cài đặt
 
 ```bash
-# 1. Di chuyển vào thư mục frontend (hoặc chạy trực tiếp tại root)
+# 1. Di chuyển vào thư mục frontend
 cd frontend
+
+# 2. Cài đặt các thư viện phụ thuộc
 npm install
 
-# 2. Cấu hình biến môi trường
+# 3. Cấu hình biến môi trường
 cp .env.example .env.local
 ```
 
-File `.env.local`:
+Nội dung file `.env.local`:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:4000
 ```
 
 ```bash
-# 3. Chạy môi trường phát triển (Development)
+# 4. Chạy môi trường phát triển (Development)
 npm run dev
 # Truy cập giao diện tại: http://localhost:3000
 
-# 4. Build phiên bản thương mại (Production)
+# 5. Build phiên bản phát hành (Production)
 npm run build
 npm start
 ```
@@ -94,32 +131,12 @@ npm start
 
 | Vai trò | Email | Mật khẩu | Phạm vi quyền hạn |
 |---|---|---|---|
-| **Admin** — Trần Minh Tuấn | `admin@company.com` | `123456` | Toàn quyền hệ thống, xem tất cả chi nhánh |
+| **Admin** — Trần Minh Tuấn | `admin@company.com` | `123456` | Toàn quyền hệ thống, quản trị tất cả chi nhánh |
 | **Manager** — Vũ Thành Công | `manager@company.com` | `123456` | Quản lý vận hành phạm vi chi nhánh HN-1 |
 
 ---
 
-## 🌳 Cấu trúc thư mục
-
-```text
-frontend/
-├── src/
-│   ├── app/                # Next.js App Router (auth, dashboard, api proxy)
-│   ├── components/         # UI Components dùng chung (Layout, Form, Modal, Button...)
-│   ├── context/            # React Context (AuthContext, ThemeContext)
-│   ├── features/           # Module nghiệp vụ (bank, branches, employees, payslips, shifts, tasks, wifi...)
-│   ├── hooks/              # Custom React Hooks
-│   ├── lib/                # Tiện ích API Client, định dạng ngày tháng, kiểm tra quyền hạn
-│   └── types/              # TypeScript Type & Interface định nghĩa hệ thống
-├── public/                 # Static assets, logos, favicon
-├── next.config.ts          # Cấu hình Next.js
-├── tailwind.config.ts      # Cấu hình giao diện Tailwind v4
-└── tsconfig.json           # Cấu hình TypeScript
-```
-
----
-
-## 🔗 Liên kết hệ thống HRM Enterprise
+## 🔗 Liên kết hệ sinh thái HRM Enterprise
 
 - **Backend SOA (Core Server):** [HRM-QuanLyDuAn/backend](https://github.com/HRM-QuanLyDuAn/backend)
 - **Mobile App (Flutter):** [HRM-QuanLyDuAn/mobile](https://github.com/HRM-QuanLyDuAn/mobile)
